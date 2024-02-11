@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="view-transition" content="same-origin" />
+    <title>Document</title>
+    <link rel="preload" href="test2.html" as="fetch" crossorigin="anonymous" #include>
+    <script type="module" src="ht.min.mjs"></script>
+</head>
+<body #let:var2="'a'">
+    <input type="text" #let-session:val="`I'm saved in session storage`" ::value="val" @input="(e) => {this.val = e.target.value}">
+    <input type="text" #let-local:val="`I'm saved in local storage`" ::value="val" @input="(e) => {this.val = e.target.value}">
+    <input type="text" #let-url:val="`I'm saved in the url`" ::value="val" @input="(e) => {this.val = e.target.value}">
+    <br>
+    <button @click|fetch="'https://corsproxy.io/?https%3A%2F%2Fgooey.ai%2Fqr-code%2F' -> console">Console Log Fetch Result</button>
+    <button id="hello" @click|fetch="'data:application/json;charset=utf-8;base64,eyJoZWxsbyI6IndvcmxkIn0=' -> #hello -> afterEnd">Insert Fetch Response Text as HTML</button>
+    <button #let:hello="'Fetch Directly To Variable'" ::text="hello" @click|fetch="'data:application/json;charset=utf-8;base64,eyJoZWxsbyI6IndvcmxkIn0=' -> hello"></button>
+    <button #let:hello="'Fetch State Update'" ::text="hello" @click|fetch="'data:application/json;charset=utf-8;base64,eyJoZWxsbyI6IndvcmxkIn0=' -> this"></button>
+    <button @click|fetch:json="`data:application/json;charset=utf-${e.width * 8};base64,eyJoZWxsbyI6IndvcmxkIn0=` -> console">Console Log Fetch Result</button>
+    <br>
+    <lifecycle-component></lifecycle-component>
+    <br>
+    <button @click|throttle:1000="() => this[element].textContent += 's'">ye</button>
+    <button @click|once|delay:1000="() => this[element].textContent = 'nope'">I only work once and always wait 1000ms!</button>
+    <div #let:display="'block'" #let:color="'#ffffff'" #let:opacity="1"
+        ::style.display="display" ::style.background-color="color" ::style.opacity="opacity" style="height: 100px">
+        <input type="color" ::value="color" @input="(e) => {this.color = e.target.value}">
+        <input type="range" ::value="opacity" min="0" max="1" step="0.1" @input="(e) => {this.opacity = e.target.value}">
+        <button @click="(e) => {this.display = 'none'}">Hide</button>
+    </div>
+    <div #let:display="'block'" #let:color="'#ffffff'" #let:opacity="1" #let:half-width="true" #let:full-width="window.innerWidth"
+        :style="display: ${this.display}; background-color: ${this.color}; opacity: ${this.opacity}; width: ${this.halfWidth ? window.innerWidth / 2 : this.fullWidth}px">
+        <input type="color" ::value="color" @input="(e) => {this.color = e.target.value}">
+        <input type="range" ::value="opacity" min="0" max="1" step="0.1" @input="(e) => {this.opacity = e.target.value}">
+        <button @click="(e) => {this.display = 'none'}">Hide</button>
+        <button @click="() => this.halfWidth = !this.halfWidth">Toggle Width</button>
+        <input type="range" ::value="fullWidth" min="0" :max="${window.innerWidth}" step="0.1" @input="(e) => {this.fullWidth = e.target.value}">
+    </div>
+    <!-- <div>
+        <div>
+            <h1 #use="var2"><${this.var2} href="https://sandergi.github.io">hello</${this.var2}></h1>
+            <input type="text" ::value="var2" @input="(e) => {this.var2 = e.target.value}">
+        </div>
+    </div>
+    <div #let:var1="'Test'">
+        <h1 #use="var1">[TEST]${this.var1}[/TEST]</h1>
+        <input type="text" ::value="var1" @input="(e) => {this.var1 = e.target.value}">
+    </div> -->
+    <div @click="(e) => console.log(e.target, this[element])">
+        <button>Hello</button>
+    </div>
+    <h1 ::text="var2">Test</h1>
+    <input type="text" ::value="var2" @input="(e) => {this.var2 = e.target.value}">
+    <hr>
+    <div #let:var1="'hello ' + this.var2">
+        <input type="text" ::value="var1" @input="(e) => {this.var1 = e.target.value}">
+        <h1 ::text="var1">Test</h1>
+        <input type="text" ::value="var1" @input="(e) => {this.var1 = e.target.value}">
+    </div>
+    <hr>
+    <div #let:var1="'hi'" #let:var3|var1="this.var1 + (this.var3 || ' 3').replace(this[old].var1, '')" #let:var4|var1="'<h1>' + this.var3 + '</h1>'">
+        <h1 ::text="var1">Test</h1>
+        <input type="text" ::value="var1" @input="(e) => {this.var1 = e.target.value}">
+        <h1 ::text="var3">Test</h1>
+        <input type="text" ::value="var3" @input="(e) => {this.var3 = e.target.value}">
+    </div>
+    <div #let:var1>
+        <input type="text" ::value="var1">
+        <script type="module" id="id1">
+            import './ht.min.mjs';
+            const state = document.getElementById('id1').$state;
+            state.var1 = 'hi';
+        </script>
+    </div>
+    <div #let:var1>
+        <input type="text" ::value="var1" #jsvar="myStateVar">
+        <script type="module">
+            import { jsvars } from './ht.min.mjs';
+            const { myStateVar } = jsvars;
+            myStateVar.var1 = 'hi';
+        </script>
+    </div>
+    <template #component="random-list" #let:items="''">
+        <button @click="this.add">Add</button>
+        <ul ::html="items"></ul>
+        <script>
+            this.add = () => {
+                this.items += `<li>${Math.random()}</li>`;
+            }
+        </script>
+    </template>
+    <random-list></random-list>
+
+    <template>
+        <h1>Not A Component</h1>
+    </template>
+    
+    <hr>
+    <test-component :var1="var2"></test-component>
+    <hr>
+    <test-component></test-component>
+    <hr>
+    <test-component var1="awesome pizza"></test-component>
+    
+    <hr>
+    <todo-list></todo-list>
+</body>
+</html>

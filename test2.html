@@ -1,0 +1,47 @@
+<h1>Imported Content</h1>
+<template #component="test-component" var1="'default value'">
+    <h1 ::text="var1">Test</h1>
+    <input type="text" ::value="var1" @input="(e) => {this.var1 = e.target.value}">
+</template>
+<template #component="lifecycle-component">
+    Check The Console For which code runs in which order.
+    <button @click="() => this[component].remove()">Remove from DOM to test #onDisconnected</button>
+    <script>
+        console.log('runs when element is constructed');
+    </script>
+    <script #onConnected>
+        console.log('runs when element is connected to the DOM');
+    </script>
+    <script #onDisconnected>
+        console.log('runs when element is removed from the DOM');
+    </script>
+</template>
+<template #component="todo-list" #let:input="''" #let:item="''">
+    <h1>Todo List</h1>
+    <input type="text" placeholder="New Item" ::value="input" 
+        @input="(e) => this.input = e.target.value">
+    <button @click="this.add">Add</button>
+    <ul ::html+="item" style="list-style-type: none">
+        <todo-item>Write my first post</todo-item>
+        <todo-item>Upload the post to the blog</todo-item>
+        <todo-item>Publish the post at Facebook</todo-item>
+    </ul>
+    <script>
+        this.add = () => {
+            this.item = `<todo-item>${this.input}</todo-item>`;
+            this.input = '';
+        }
+    </script>
+</template>
+<template #component="todo-item">
+    <li #let:status>
+        <input type="checkbox" @change="(e) => this.status = e.target.checked">
+        <span :checked="status"><slot></slot></span>
+        <span @click="(e) => this[component].remove()">❌</span>
+    </li>
+    <style>
+        span[checked="true"] {
+            text-decoration: line-through;
+        }
+    </style>
+</template>
